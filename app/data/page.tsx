@@ -5,12 +5,11 @@ import Navbar from "../components/Navbar";
 
 export default function DataPage() {
   const [data, setData] = useState<any[]>([]);
-
   const [editId, setEditId] = useState<number | null>(null);
   const [editName, setEditName] = useState("");
   const [editCategory, setEditCategory] = useState("");
-
   const [search, setSearch] = useState("");
+
   const filtered = data.filter((item) =>
     item.name?.toLowerCase().includes(search.toLowerCase())
   );
@@ -21,13 +20,11 @@ export default function DataPage() {
       const result = await res.json();
       setData(result);
     };
-
     loadData();
   }, []);
 
   const handleSync = async () => {
     await fetch("/api/sync");
-
     const res = await fetch("/api/users");
     const result = await res.json();
     setData(result);
@@ -39,60 +36,80 @@ export default function DataPage() {
   };
 
   return (
-    <div>
+    <div className="min-h-screen bg-gray-100">
       <Navbar />
 
-      <div className="p-6">
-        <h1 className="text-xl font-bold mb-4">Manajemen Data</h1>
-        <button
-          onClick={handleSync}
-          className="bg-green-500 text-white px-4 py-2 rounded mb-4"
-        >
-          Sync Data
-        </button>
+      <div className="p-6 max-w-6xl mx-auto space-y-6">
+        <h1 className="text-2xl font-bold">Manajemen Data</h1>
 
-        <input
-          type="text"
-          placeholder="Cari nama..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border p-2 mb-4"
-        />
+        {/* ACTION BAR */}
+        <div className="flex flex-col md:flex-row gap-4 justify-between">
+          <button
+            onClick={handleSync}
+            className="bg-green-500 text-white px-4 py-2 rounded"
+          >
+            Sync Data
+          </button>
 
-        <table className="w-full border">
-          <thead className="bg-gray-200">
-            <tr>
-              <th>ID</th>
-              <th>Nama</th>
-              <th>Kategori</th>
-              <th>Tanggal</th>
-              <th>Aksi</th>
-            </tr>
-          </thead>
+          <input
+            type="text"
+            placeholder="Cari nama..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="border p-2 rounded w-full md:w-64"
+          />
+        </div>
 
-          <tbody>
-            {filtered.map((item) => (
-              <tr key={item.id} className="text-center">
-                <td>{item.id}</td>
-                <td>{item.name}</td>
-                <td>
-                  {editId === item.id ? (
-                    <input
-                      value={editCategory}
-                      onChange={(e) => setEditCategory(e.target.value)}
-                      className="border"
-                    />
-                  ) : (
-                    item.category
-                  )}
-                </td>
-                <td>{item.created_at.split("T")[0]}</td>
+        {/* TABLE */}
+        <div className="bg-white shadow rounded-xl overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-200">
+              <tr>
+                <th className="p-3">ID</th>
+                <th className="p-3">Nama</th>
+                <th className="p-3">Kategori</th>
+                <th className="p-3">Tanggal</th>
+                <th className="p-3">Aksi</th>
+              </tr>
+            </thead>
 
-                <td>
-                  <td>
+            <tbody>
+              {filtered.map((item) => (
+                <tr key={item.id} className="text-center border-t">
+                  <td className="p-2">{item.id}</td>
+
+                  <td className="p-2">
                     {editId === item.id ? (
+                      <input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="border p-1 rounded"
+                      />
+                    ) : (
+                      item.name
+                    )}
+                  </td>
 
-                      // Save
+                  {/* EDIT CATEGORY */}
+                  <td className="p-2">
+                    {editId === item.id ? (
+                      <input
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value)}
+                        className="border p-1 rounded"
+                      />
+                    ) : (
+                      item.category
+                    )}
+                  </td>
+
+                  <td className="p-2">
+                    {item.created_at.split("T")[0]}
+                  </td>
+
+                  {/* ACTION */}
+                  <td className="p-2 space-x-2">
+                    {editId === item.id ? (
                       <button
                         onClick={async () => {
                           await fetch(`/api/users/${item.id}`, {
@@ -106,45 +123,46 @@ export default function DataPage() {
                           setData(
                             data.map((d) =>
                               d.id === item.id
-                                ? { ...d, name: editName, category: editCategory }
+                                ? {
+                                    ...d,
+                                    name: editName,
+                                    category: editCategory,
+                                  }
                                 : d
                             )
                           );
 
                           setEditId(null);
                         }}
-                        className="bg-blue-500 text-white px-2 py-1 rounded mr-2"
+                        className="bg-blue-500 text-white px-2 py-1 rounded"
                       >
                         Save
                       </button>
                     ) : (
-
-                      // Edit
                       <button
                         onClick={() => {
                           setEditId(item.id);
                           setEditName(item.name);
                           setEditCategory(item.category);
                         }}
-                        className="bg-yellow-500 text-white px-2 py-1 rounded mr-2"
+                        className="bg-yellow-500 text-white px-2 py-1 rounded"
                       >
                         Edit
                       </button>
                     )}
 
                     <button
-                      // Delete
                       onClick={() => handleDelete(item.id)}
                       className="bg-red-500 text-white px-2 py-1 rounded"
                     >
                       Delete
                     </button>
                   </td>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
