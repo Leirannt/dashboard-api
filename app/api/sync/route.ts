@@ -7,6 +7,7 @@ export async function GET() {
   const users = res.data.users;
 
   for (let u of users) {
+    
     await db.execute(
       `INSERT INTO users (id, name, category, created_at, updated_at)
        VALUES (?, ?, ?, NOW(), NOW())

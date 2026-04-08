@@ -8,6 +8,8 @@ import BarChart from "./components/BarChart";
 export default function Home() {
   const [data, setData] = useState<any[]>([]);
   const [lastSync, setLastSync] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
@@ -33,6 +35,13 @@ export default function Home() {
   data.forEach((item) => {
     countCategory[item.category] =
       (countCategory[item.category] || 0) + 1;
+  });
+
+  const filteredData = data.filter((item) => {
+  if (!startDate || !endDate) return true;
+
+  const date = item.created_at.split("T")[0];
+  return date >= startDate && date <= endDate;
   });
 
   const topCategory =
@@ -62,15 +71,28 @@ export default function Home() {
             Last Sync: {lastSync}
           </div>
         </div>
-                  <div className="grid grid-cols-2 gap-4">
+            
+            <div className="flex gap-4 ">
+              <input
+                type="date"
+                onChange={(e) => setStartDate(e.target.value)}
+                className="border p-4 bg-white shadow rounded"
+              />
+              <input
+                type="date"
+                onChange={(e) => setEndDate(e.target.value)}
+                className="border p-4 bg-white shadow rounded"
+              />
+            </div>
+          <div className="grid grid-cols-2 gap-4">
             <div className="bg-white shadow p-4 rounded">
               <h2 className="font-bold mb-2">Pie Chart</h2>
-              <PieChart data={data} />
+              <PieChart data={filteredData} />
             </div>
 
             <div className="bg-white shadow p-4 rounded">
               <h2 className="font-bold mb-2">Bar Chart</h2>
-              <BarChart data={data} />
+              <BarChart data={filteredData} />
             </div>
           </div>
       </div>
