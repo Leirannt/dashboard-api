@@ -51,19 +51,19 @@ export default function Home() {
       <Navbar />
 
       <div className="p-6 max-w-7xl mx-auto space-y-6">
-        <h1 className="text-3xl font-bold">Dashboard</h1>
+        <h1 className="text-3xl font-bold">Dashboard Analisis Peluncuran Roket SpaceX</h1>
 
         {/* SUMMARY CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white shadow rounded-xl p-5">
             <p className="text-gray-500 text-sm">Total Data</p>
-            <h2 className="text-2xl font-bold">{total}</h2>
+            <h2 className="text-2xl font-bold">{total} Peluncuran</h2>
           </div>
 
           <div className="bg-white shadow rounded-xl p-5">
             <p className="text-gray-500 text-sm">Kategori Terbanyak</p>
             <h2 className="text-2xl font-bold capitalize">
-              {topCategory}
+              Peluncuran {topCategory}
             </h2>
           </div>
 
@@ -77,6 +77,9 @@ export default function Home() {
 
         {/* FILTER */}
         <div className="bg-white shadow rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center">
+          <div>
+            <p className="text-2xl font-bold">Rentang Tanggal Peluncuran</p>
+          </div>
           <div className="flex flex-col">
             <label className="text-sm text-gray-500">Start Date</label>
             <input
@@ -85,7 +88,6 @@ export default function Home() {
               className="border p-2 rounded"
             />
           </div>
-
           <div className="flex flex-col">
             <label className="text-sm text-gray-500">End Date</label>
             <input
