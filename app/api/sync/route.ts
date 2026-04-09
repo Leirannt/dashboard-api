@@ -26,5 +26,10 @@ export async function GET() {
     );
   }
 
+  await db.execute(
+  `INSERT INTO sync_log (last_sync)
+   VALUES (NOW())`
+);
+
   return NextResponse.json({ message: "Sync SpaceX success" });
 }

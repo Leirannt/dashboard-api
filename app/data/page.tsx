@@ -170,7 +170,7 @@ export default function DataPage() {
                   className="border-t text-center"
                 >
                   <td className="p-2">
-                    {item.id.slice(0,6)}
+                    {item.id}
                   </td>
 
 
