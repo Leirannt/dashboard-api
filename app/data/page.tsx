@@ -4,49 +4,112 @@ import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 
 export default function DataPage() {
+
   const [data, setData] = useState<any[]>([]);
-  const [editId, setEditId] = useState<number | null>(null);
+
+  const [editId, setEditId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [editCategory, setEditCategory] = useState("");
+
   const [search, setSearch] = useState("");
 
-  const filtered = data.filter((item) =>
-    item.name?.toLowerCase().includes(search.toLowerCase())
-  );
+  const [sortField, setSortField] = useState<string>("created_at");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
-    const loadData = async () => {
-      const res = await fetch("/api/users");
-      const result = await res.json();
-      setData(result);
-    };
     loadData();
   }, []);
 
-  const handleSync = async () => {
-    await fetch("/api/sync");
+  const loadData = async () => {
     const res = await fetch("/api/users");
     const result = await res.json();
     setData(result);
   };
 
-  const handleDelete = async (id: number) => {
-    await fetch(`/api/users/${id}`, { method: "DELETE" });
-    setData(data.filter((item) => item.id !== id));
+  const handleSync = async () => {
+    await fetch("/api/sync");
+    loadData();
   };
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/users/${id}`, {
+      method: "DELETE"
+    });
+    setData(prev =>
+      prev.filter(item => item.id !== id)
+    );
+  };
+
+  const handleSave = async (id: string) => {
+    await fetch(`/api/users/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        name: editName,
+        category: editCategory
+      })
+    });
+    setData(prev =>
+      prev.map(item =>
+        item.id === id
+          ? {
+              ...item,
+              name: editName,
+              category: editCategory
+            }
+          : item
+      )
+    );
+    setEditId(null);
+  };
+
+  const filteredData = data.filter(item =>
+    item.name
+      ?.toLowerCase()
+      .includes(search.toLowerCase())
+  );
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortOrder(
+        sortOrder === "asc"
+          ? "desc"
+          : "asc"
+      );
+    } else {
+      setSortField(field);
+      setSortOrder("asc");
+    }
+  };
+
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (sortField === "created_at") {
+      return sortOrder === "asc"
+        ? new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+        : new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
+    if (sortField === "id") {
+      return sortOrder === "asc"
+        ? a.id.localeCompare(b.id)
+        : b.id.localeCompare(a.id);
+    }
+    return sortOrder === "asc"
+      ? String(a[sortField]).localeCompare(String(b[sortField]))
+      : String(b[sortField]).localeCompare(String(a[sortField]));
+  });
 
   return (
     <div className="min-h-screen bg-gray-100">
       <Navbar />
-
-      <div className="p-6 max-w-6xl mx-auto space-y-6">
-        <h1 className="text-2xl font-bold">Manajemen Data</h1>
+      <div className="max-w-6xl mx-auto p-6 space-y-6">
+        <h1 className="text-2xl font-bold">
+          Manajemen Data
+        </h1>
 
         {/* ACTION BAR */}
-        <div className="flex flex-col md:flex-row gap-4 justify-between">
+        <div className="flex flex-col md:flex-row justify-between gap-4">
           <button
             onClick={handleSync}
-            className="bg-green-500 text-white px-4 py-2 rounded"
+            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg shadow"
           >
             Sync Data
           </button>
@@ -56,53 +119,93 @@ export default function DataPage() {
             placeholder="Cari nama..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="border p-2 rounded w-full md:w-64"
+            className="border px-3 py-2 rounded-lg w-full md:w-64"
           />
         </div>
 
         {/* TABLE */}
-        <div className="bg-white shadow rounded-xl overflow-x-auto">
+        <div className="bg-white rounded-xl shadow overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-gray-200">
               <tr>
-                <th className="p-3">ID</th>
-                <th className="p-3">Nama</th>
-                <th className="p-3">Kategori</th>
-                <th className="p-3">Tanggal</th>
-                <th className="p-3">Aksi</th>
+                <SortableHeader
+                  label="ID"
+                  field="id"
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  onClick={handleSort}
+                />
+                <SortableHeader
+                  label="Nama"
+                  field="name"
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  onClick={handleSort}
+                />
+                <SortableHeader
+                  label="Kategori"
+                  field="category"
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  onClick={handleSort}
+                />
+
+                <SortableHeader
+                  label="Tanggal"
+                  field="created_at"
+                  sortField={sortField}
+                  sortOrder={sortOrder}
+                  onClick={handleSort}
+                />
+                <th className="p-3">
+                  Aksi
+                </th>
               </tr>
             </thead>
 
             <tbody>
-              {filtered.map((item) => (
-                <tr key={item.id} className="text-center border-t">
-                  <td className="p-2">{item.id}</td>
+              {sortedData.map(item => (
+                <tr
+                  key={item.id}
+                  className="border-t text-center"
+                >
+                  <td className="p-2">
+                    {item.id.slice(0,6)}
+                  </td>
 
+
+                  {/* NAME */}
                   <td className="p-2">
                     {editId === item.id ? (
                       <input
                         value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="border p-1 rounded"
+                        onChange={(e) =>
+                          setEditName(e.target.value)
+                        }
+                        className="border px-2 py-1 rounded"
                       />
                     ) : (
                       item.name
                     )}
                   </td>
 
-                  {/* EDIT CATEGORY */}
+
+                  {/* CATEGORY */}
                   <td className="p-2">
                     {editId === item.id ? (
                       <input
                         value={editCategory}
-                        onChange={(e) => setEditCategory(e.target.value)}
-                        className="border p-1 rounded"
+                        onChange={(e) =>
+                          setEditCategory(e.target.value)
+                        }
+                        className="border px-2 py-1 rounded"
                       />
                     ) : (
                       item.category
                     )}
                   </td>
 
+                  {/* DATE */}
                   <td className="p-2">
                     {item.created_at.split("T")[0]}
                   </td>
@@ -111,30 +214,8 @@ export default function DataPage() {
                   <td className="p-2 space-x-2">
                     {editId === item.id ? (
                       <button
-                        onClick={async () => {
-                          await fetch(`/api/users/${item.id}`, {
-                            method: "PUT",
-                            body: JSON.stringify({
-                              name: editName,
-                              category: editCategory,
-                            }),
-                          });
-
-                          setData(
-                            data.map((d) =>
-                              d.id === item.id
-                                ? {
-                                    ...d,
-                                    name: editName,
-                                    category: editCategory,
-                                  }
-                                : d
-                            )
-                          );
-
-                          setEditId(null);
-                        }}
-                        className="bg-blue-500 text-white px-2 py-1 rounded"
+                        onClick={() => handleSave(item.id)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
                       >
                         Save
                       </button>
@@ -145,15 +226,16 @@ export default function DataPage() {
                           setEditName(item.name);
                           setEditCategory(item.category);
                         }}
-                        className="bg-yellow-500 text-white px-2 py-1 rounded"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded"
                       >
                         Edit
                       </button>
                     )}
-
                     <button
-                      onClick={() => handleDelete(item.id)}
-                      className="bg-red-500 text-white px-2 py-1 rounded"
+                      onClick={() =>
+                        handleDelete(item.id)
+                      }
+                      className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
                     >
                       Delete
                     </button>
@@ -165,5 +247,29 @@ export default function DataPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+
+{/* SORT HEADER */}
+function SortableHeader({
+  label,
+  field,
+  sortField,
+  sortOrder,
+  onClick
+}: any) {
+  return (
+    <th
+      onClick={() => onClick(field)}
+      className="p-3 cursor-pointer select-none"
+    >
+      {label}
+      {sortField === field && (
+        sortOrder === "asc"
+          ? " ↑"
+          : " ↓"
+      )}
+    </th>
   );
 }

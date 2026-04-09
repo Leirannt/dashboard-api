@@ -20,7 +20,10 @@ export default function BarChart({ data }: any) {
     labels,
     datasets: [
       {
-        label: "Jumlah Data",
+        label: "jumlah launch per tanggal",
+        backgroundColor: [
+        "#A7A9AC", 
+        ],
         data: values,
       },
     ],

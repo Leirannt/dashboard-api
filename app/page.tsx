@@ -53,7 +53,7 @@ export default function Home() {
       <div className="p-6 max-w-7xl mx-auto space-y-6">
         <h1 className="text-3xl font-bold">Dashboard</h1>
 
-        {/* 🔹 SUMMARY CARDS */}
+        {/* SUMMARY CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white shadow rounded-xl p-5">
             <p className="text-gray-500 text-sm">Total Data</p>
@@ -75,7 +75,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 🔹 FILTER */}
+        {/* FILTER */}
         <div className="bg-white shadow rounded-xl p-4 flex flex-col md:flex-row gap-4 items-center">
           <div className="flex flex-col">
             <label className="text-sm text-gray-500">Start Date</label>
@@ -96,7 +96,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* 🔹 CHARTS */}
+        {/* CHARTS */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div className="bg-white shadow rounded-xl p-5">
             <h2 className="font-semibold mb-4">Distribusi Kategori</h2>

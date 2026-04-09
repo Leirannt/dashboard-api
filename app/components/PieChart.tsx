@@ -6,17 +6,17 @@ import { Chart, ArcElement, Tooltip, Legend } from "chart.js";
 Chart.register(ArcElement, Tooltip, Legend);
 
 export default function PieChart({ data }: any) {
-  const male = data.filter((d: any) => d.category === "male").length;
-  const female = data.filter((d: any) => d.category === "female").length;
+  const success = data.filter((d: any) => d.category === "success").length;
+  const failed = data.filter((d: any) => d.category === "failed").length;
 
   const chartData = {
-    labels: ["Male", "Female"],
+    labels: ["success", "failed" ],
     datasets: [
     {
-      data: [male, female],
+      data: [success, failed],
       backgroundColor: [
-        "#3B82F6", //(male)
-        "#F472B6", //(female)
+        "#005288", //(success)
+        "#A7A9AC", //(failed)
       ],
       borderColor: "#ffffff",
       borderWidth: 2,
