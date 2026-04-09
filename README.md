@@ -2,6 +2,12 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+- import the db (dashboard_db)
+- You might need this to be installed:
+  - npm install axios chart.js react-chartjs-2
+  - npm install chart.js react-chartjs-2
+  - npm install mysq12
+
 First, run the development server:
 
 ```bash
